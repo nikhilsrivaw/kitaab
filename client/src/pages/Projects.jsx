@@ -147,6 +147,14 @@ const Projects = () => {
                                     </button>
                                     <button
                                         onClick={() => {
+                                            window.location.href = `/projects/${project.id}/income`;  // ← Add this!
+                                        }}
+                                        className="flex-1 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                                    >
+                                        Income
+                                    </button>
+                                    <button
+                                        onClick={() => {
                                             setEditProjectId(project.id);
                                             setEditFormData({
                                                 name: project.name,
