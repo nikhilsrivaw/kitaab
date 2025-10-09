@@ -58,6 +58,10 @@ export const authAPI ={
       delete: (id) => api.delete(`/incomes/${id}`)
   };
 
+  export const dashboardAPI = {
+    getDashboardStats: () => api.get('/dashboard/stats')
+  }
+
   // Analytics API calls
   export const analyticsAPI = {
       getFinancials: (projectId) => api.get(`/analytics/${projectId}/financials`)
