@@ -1,146 +1,153 @@
 import React, { useState, useEffect } from 'react';
-  import { clientAPI } from '../services/api';
+import { clientAPI } from '../services/api';
+import Navbar from '../components/Navbar';
 
-  const Clients = () => {
-      // State for clients list
-      const [clients, setClients] = useState([]);
-      const [loading, setLoading] = useState(false);
-      const [error, setError] = useState(null);
+const Clients = () => {
+    // State for clients list
+    const [clients, setClients] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-      // State for create modal
-      const [showCreateModal, setShowCreateModal] = useState(false);
-      const [formData, setFormData] = useState({
-          name: '',
-          company_name: '',
-          email: '',
-          phone: '',
-          address: '',
-          city: '',
-          country: '',
-          website: '',
-          industry: '',
-          payment_terms: 'net 30',
-          hourly_rate: 0,
-          currency: 'USD',
-          status: 'active', 
-          client_type: 'individual',
-          notes: ''
-      });
+    // State for create modal
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        company_name: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        country: '',
+        website: '',
+        industry: '',
+        payment_terms: 'net 30',
+        hourly_rate: 0,
+        currency: 'USD',
+        status: 'active',
+        client_type: 'individual',
+        notes: ''
+    });
 
-      // State for edit modal
-      const [editClientId, setEditClientId] = useState(null);
-      const [editFormData, setEditFormData] = useState({});
+    // State for edit modal
+    const [editClientId, setEditClientId] = useState(null);
+    const [editFormData, setEditFormData] = useState({});
 
-      // State for delete modal
-      const [deleteClientId, setDeleteClientId] = useState(null);
-      const [deleteConfirmText, setDeleteConfirmText] = useState('');
+    // State for delete modal
+    const [deleteClientId, setDeleteClientId] = useState(null);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
-      // Fetch all clients on mount
-      useEffect(() => {
-          fetchClients();
-      }, []);
+    // Fetch all clients on mount
+    useEffect(() => {
+        fetchClients();
+    }, []);
 
-      const fetchClients = async () => {
-          setLoading(true);
-          try {
-              const result = await clientAPI.getAll();
-              if (result && result.data) {
-                  setClients(result.data.clients || result.data.result || []);
-              }
-          } catch (error) {
-              setError('Failed to fetch clients');
-              console.error('Error fetching clients:', error);
-          } finally {
-              setLoading(false);
-          }
-      };
+    const fetchClients = async () => {
+        setLoading(true);
+        try {
+            const result = await clientAPI.getAll();
+            if (result && result.data) {
+                setClients(result.data.clients || result.data.result || []);
+                
+            }
+        } catch (error) {
+            setError('Failed to fetch clients');
+            console.error('Error fetching clients:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      // Handle create form change
-      const handleChange = (e) => {
-          setFormData({
-              ...formData,
-              [e.target.name]: e.target.value
-          });
-      };
+    // Handle create form change
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
 
-      // Handle create form submit
-      const handleSubmit = async (e) => {
-          e.preventDefault();
-          try {
-              const result = await clientAPI.create(formData);
-              if (result) {
-                  setShowCreateModal(false);
-                  setFormData({
-                      name: '',
-                      company_name: '',
-                      email: '',
-                      phone: '',
-                      address: '',
-                      city: '',
-                      country: '',
-                      website: '',
-                      industry: '',
-                      payment_terms: 'net 30',
-                      hourly_rate: 0,
-                      currency: 'USD',
-                      client_type: 'individual',
-                      notes: ''
-                  });
-                  fetchClients();
-              }
-          } catch (error) {
-              console.error('Error creating client:', error);
-              setError('Failed to create client');
-          }
-      };
+    // Handle create form submit
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const result = await clientAPI.create(formData);
+            if (result) {
+                setShowCreateModal(false);
+                setFormData({
+                    name: '',
+                    company_name: '',
+                    email: '',
+                    phone: '',
+                    address: '',
+                    city: '',
+                    country: '',
+                    website: '',
+                    industry: '',
+                    payment_terms: 'net 30',
+                    hourly_rate: 0,
+                    currency: 'USD',
+                    status: 'active',
+                    client_type: 'individual',
+                    notes: ''
+                });
+                fetchClients();
+            }
+        } catch (error) {
+            console.error('Error creating client:', error);
+            setError('Failed to create client');
+        }
+    };
 
-      // Handle edit form change
-      const handleEditChange = (e) => {
-          setEditFormData({
-              ...editFormData,
-              [e.target.name]: e.target.value
-          });
-      };
+    // Handle edit form change
+    const handleEditChange = (e) => {
+        setEditFormData({
+            ...editFormData,
+            [e.target.name]: e.target.value
+        });
+    };
 
-      // Handle edit form submit
-      const handleEditSubmit = async (e) => {
-          e.preventDefault();
-          try {
-              const result = await clientAPI.update(editClientId, editFormData);
-              if (result) {
-                  setEditClientId(null);
-                  setEditFormData({});
-                  fetchClients();
-              }
-          } catch (error) {
-              console.error('Error updating client:', error);
-              setError('Failed to update client');
-          }
-      };
+    // Handle edit form submit
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const result = await clientAPI.update(editClientId, editFormData);
+            if (result) {
+                setEditClientId(null);
+                setEditFormData({});
+                fetchClients();
+            }
+        } catch (error) {
+            console.error('Error updating client:', error);
+            setError('Failed to update client');
+        }
+    };
 
-      // Handle delete
-      const handleDelete = async () => {
-          if (deleteConfirmText.trim() !== 'DELETE') {
-              alert('Please type DELETE to confirm');
-              return;
-          }
+    // Handle delete
+    const handleDelete = async () => {
+        if (deleteConfirmText.trim() !== 'DELETE') {
+            alert('Please type DELETE to confirm');
+            return;
+        }
 
-          try {
-              await clientAPI.delete(deleteClientId);
-              setDeleteClientId(null);
-              setDeleteConfirmText('');
-              fetchClients();
-          } catch (error) {
-              console.error('Error deleting client:', error);
-              setError('Failed to delete client');
-          }
-      };
+        try {
+            await clientAPI.delete(deleteClientId);
+            setDeleteClientId(null);
+            setDeleteConfirmText('');
+            fetchClients();
+        } catch (error) {
+            console.error('Error deleting client:', error);
+            setError('Failed to delete client');
+        }
+    };
 
-      if (loading) return <div className="p-8">Loading clients...</div>;
-      if (error) return <div className="p-8 text-red-600">{error}</div>;
+    if (loading) return <div className="p-8">Loading clients...</div>;
+    if (error) return <div className="p-8 text-red-600">{error}</div>;
 
-      return (
+   
+
+    return (
+        
           <div className="p-8">
+            
               <div className="flex justify-between items-center mb-8">
                   <h1 className="text-3xl font-bold">Clients</h1>
                   <button
@@ -453,7 +460,7 @@ import React, { useState, useEffect } from 'react';
                   </div>
               )}
           </div>
-      );
-  };
+    );
+};
 
-  export default Clients;
+export default Clients;

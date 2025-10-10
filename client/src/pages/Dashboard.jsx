@@ -55,7 +55,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-[var(--color-cream)]">
-            <Navbar />
+            
             <div className="container mx-auto px-8 py-12">
                 <h1 className="font-serif text-5xl font-semibold text-[var(--color-charcoal)] mb-12">Dashboard</h1>
 

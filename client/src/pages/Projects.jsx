@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { projectAPI } from '../services/api';
+import { clientAPI, projectAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 
 
@@ -8,7 +8,8 @@ const Projects = () => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
-        description: " "
+        description: " ",
+        client_id: ''
 
     });
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -16,7 +17,23 @@ const Projects = () => {
     const [deleteProjectId, setDeleteProjectId] = useState(null);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
     const [editProjectId, setEditProjectId] = useState(null);
-    const [editFormData, setEditFormData] = useState({ name: '', description: '' });
+    const [editFormData, setEditFormData] = useState({ name: '', description: '', client_id: '' });
+    const [clients, setClients] = useState([]);
+
+    const fetchClients = async () => {
+
+        try {
+            const result = await clientAPI.getAll();
+
+            if (result && result.data) {
+
+                setClients(result.data.result || []);
+            }
+        } catch (error) {
+            console.error('Error fetching clients:', error);
+
+        }
+    }
 
     const fetchProjects = async () => {
         setLoading(true);
@@ -38,6 +55,14 @@ const Projects = () => {
 
 
     }
+
+
+    const getClientName = (clientId) => {
+        if (!clientId) return null;
+        const client = clients.find(c => c.id === clientId);
+        if (!client) return null;
+        return client.company_name ? `${client.name} (${client.company_name})` : client.name;
+    }
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -51,11 +76,15 @@ const Projects = () => {
 
 
         try {
-            const result = await projectAPI.create(formData);
+            const dataToSend = {
+                ...formData,
+                client_id: formData.client_id === '' ? null : formData.client_id
+            };
+            const result = await projectAPI.create(dataToSend);
             if (result) {
                 setShowCreateModal(false);
                 fetchProjects();
-                setFormData({ name: '', description: '' })
+                setFormData({ name: '', description: '', client_id: '' })
 
             }
         } catch (error) {
@@ -89,7 +118,7 @@ const Projects = () => {
 
 
             setEditProjectId(null);
-            setEditFormData({ name: '', description: '' });
+            setEditFormData({ name: '', description: '', client_id: '' });
             fetchProjects();
         } catch (error) {
             setError(error.message);
@@ -98,13 +127,16 @@ const Projects = () => {
 
 
     useEffect(() => {
+        fetchClients();
         fetchProjects();
     }, [])
 
 
+
+
     return (
         <div className="min-h-screen bg-[var(--color-cream)]">
-            <Navbar />
+
             <div className="container mx-auto px-8 py-12">
                 <h1 className="font-serif text-5xl font-semibold text-[var(--color-charcoal)] mb-8">
                     My Projects
@@ -135,6 +167,11 @@ const Projects = () => {
                             <div key={project.id} className="bg-white p-6 rounded shadow">
                                 <h3 className="font-bold text-xl">{project.name}</h3>
                                 <p className="text-gray-600 mt-2">{project.description}</p>
+                                {project.client_id && getClientName(project.client_id) && (
+                                    <p className="text-gray-500 text-sm mt-2">
+                                        <span className="font-medium">Client:</span> {getClientName(project.client_id)}
+                                    </p>
+                                )}
                                 <div className="flex gap-2 mt-4">
                                     <button
                                         onClick={() => {
@@ -158,7 +195,8 @@ const Projects = () => {
                                             setEditProjectId(project.id);
                                             setEditFormData({
                                                 name: project.name,
-                                                description: project.description
+                                                description: project.description,
+                                                client_id: project.client_id || ''
                                             });
                                         }}
                                         className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -210,6 +248,22 @@ const Projects = () => {
                                     className="w-full px-3 py-2 border rounded"
                                     rows="3"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Client (Optional)</label>
+                                <select
+                                    name="client_id"
+                                    value={formData.client_id}
+                                    onChange={handleChange}
+                                    className="w-full border rounded px-3 py-2"
+                                >
+                                    <option value="">-- No Client --</option>
+                                    {clients.map((client) => (
+                                        <option key={client.id} value={client.id}>
+                                            {client.name} {client.company_name && `(${client.company_name})`}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                             {/* Buttons */}
@@ -314,6 +368,28 @@ const Projects = () => {
                                     rows="3"
                                 />
                             </div>
+                            {/* Client dropdown */}
+                            <div className="mb-6">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">
+                                    Client (Optional)
+                                </label>
+                                <select
+                                    name="client_id"
+                                    value={editFormData.client_id}
+                                    onChange={(e) => setEditFormData({
+                                        ...editFormData,
+                                        client_id: e.target.value
+                                    })}
+                                    className="w-full px-3 py-2 border rounded"
+                                >
+                                    <option value="">-- No Client --</option>
+                                    {clients.map((client) => (
+                                        <option key={client.id} value={client.id}>
+                                            {client.name} {client.company_name && `(${client.company_name})`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
                             {/* Buttons */}
                             <div className="flex gap-4">
@@ -321,7 +397,7 @@ const Projects = () => {
                                     type="button"
                                     onClick={() => {
                                         setEditProjectId(null);
-                                        setEditFormData({ name: '', description: '' });
+                                        setEditFormData({ name: '', description: '', client_id: '' });
                                     }}
                                     className="flex-1 px-4 py-2 border rounded"
                                 >
