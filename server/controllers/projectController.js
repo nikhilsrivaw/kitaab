@@ -1,12 +1,12 @@
 const pool = require('../config/db');
 
 const createProject = async (req, res) => {
-    const { name, description } = req.body;
+    const { name, description ,client_id } = req.body;
     const user_id = req.user.id
     try {
         const result = await pool.query(
-            'INSERT INTO projects (user_id,name , description) VALUES ($1 , $2 , $3) RETURNING *',
-            [user_id, name, description]
+            'INSERT INTO projects (user_id,name , description, client_id) VALUES ($1 , $2 , $3 , $4) RETURNING *',
+            [user_id, name, description , client_id]
         )
 
 
