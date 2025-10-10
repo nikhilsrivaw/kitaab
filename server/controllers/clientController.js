@@ -40,25 +40,30 @@ const createClient = async (req, res) => {
 
 
 const getAllClients = async (req, res) => {
+    
     const user_id = req.user.id;
+    
     try {
         const result = await pool.query(
 
-            'SELECT * FROM clients WHERE user_Id = $1  ORDER BY created_at DESC',
+            'SELECT * FROM clients WHERE user_id = $1  ORDER BY created_at DESC',
             [user_id]
 
         )
+        
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                message: " there are no clients for this user ",
-            })
-        }
+        // if (result.rows.length === 0) {
+        //     return res.status(404).json({
+        //         message: " there are no clients for this user ",
+        //     })
+        // }
+        
         return res.status(200).json({
             message: "Reeturned all the clients",
             result: result.rows
         })
     } catch (error) {
+        
         return res.status(500).json({
             message: error.message
 

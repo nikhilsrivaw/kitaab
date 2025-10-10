@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Projects from "./pages/Projects";
 import Expenses from "./pages/Expenses";
 import Income from "./pages/Income";
+import Clients from "./pages/Clients";
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -26,6 +27,10 @@ function App() {
         <Route
           path="/projects"
           element={isAuthenticated ? <Projects /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/clients"
+          element={isAuthenticated ? <Clients /> : <Navigate to="/login" />}
         />
         <Route path="/register" element={<Register />} />
 
