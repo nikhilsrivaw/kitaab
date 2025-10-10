@@ -71,3 +71,41 @@ CREATE TABLE task_tags(
 
 
   
+CREATE TABLE clients (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      workspace_id INTEGER,  -- NULL for solo, used later for teams
+
+      -- Basic Info
+      name VARCHAR(255) NOT NULL,
+      company_name VARCHAR(255),  -- Optional
+      email VARCHAR(255) UNIQUE,  -- Unique but can be NULL
+      phone VARCHAR(20),
+
+      -- Address
+      address TEXT,
+      city VARCHAR(100),
+      country VARCHAR(100),
+
+      -- Business Info
+      website VARCHAR(255),
+      industry VARCHAR(100),
+      tax_id VARCHAR(50),
+
+      -- Financial
+      payment_terms VARCHAR(50) DEFAULT 'net 30',
+      hourly_rate DECIMAL(10, 2) DEFAULT 0,
+      currency VARCHAR(10) DEFAULT 'USD',
+
+      -- Status & Type
+      status VARCHAR(20) NOT NULL DEFAULT 'active',
+      client_type VARCHAR(20) NOT NULL DEFAULT 'individual',
+
+      -- Additional
+      notes TEXT,
+      avatar_url VARCHAR(500),
+
+      -- Timestamps
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
