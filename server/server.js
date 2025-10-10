@@ -26,6 +26,8 @@ const analyticsRoutes = require('./routes/analytics');
 const authMiddleware = require('./middleware/auth');
 
 const dashboardRoutes = require('./routes/dashboard');
+const clientRoutes = require('./routes/clients');
+
 
 
 
@@ -40,6 +42,7 @@ app.use('/api/incomes', authMiddleware, incomeRoutes);
 app.use('/api/analytics', authMiddleware, analyticsRoutes);
 
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);
+app.use('/api/clients', authMiddleware, clientRoutes);
 
 
 app.get('/api/health', (req, res) => {
