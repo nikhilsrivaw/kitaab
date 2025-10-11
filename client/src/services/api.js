@@ -43,7 +43,7 @@ export const projectAPI = {
 
 // Task API calls
 export const taskAPI = {
-    getByProject: (projectId) => api.get(`/tasks/${projectId}`),
+    getAll: (projectId) => api.get(`/tasks/${projectId}`),
     create: (taskData) => api.post('/tasks', taskData),
     update: (id, taskData) => api.put(`/tasks/${id}`, taskData),
     delete: (id) => api.delete(`/tasks/${id}`)
@@ -68,6 +68,7 @@ export const incomeAPI = {
 export const dashboardAPI = {
     getDashboardStats: () => api.get('/dashboard/stats')
 }
+
 
 // Analytics API calls
 export const analyticsAPI = {
