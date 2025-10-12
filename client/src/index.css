@@ -154,3 +154,8 @@ body {
     @apply bg-background text-foreground;
   }
 }
+ /* Dark mode styles */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;}
+    }

@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { aiAPI, clientAPI, projectAPI, taskAPI } from '../services/api';
 import KanbanBoard from '../components/KanbanBoard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 
 const ProjectDetail = () => {
@@ -45,7 +48,7 @@ const ProjectDetail = () => {
     const projectId = parseInt(id);
 
     const handleDragEnd = async (result) => {
-        
+
         if (!result.destination) return;
 
         const taskId = parseInt(result.draggableId);
@@ -241,553 +244,526 @@ const ProjectDetail = () => {
     }, []);
 
     if (loading) {
-        return <div className='p-8'> Loading projects ...</div>
+        return <div className='p-8 pt-28'> Loading projects ...</div>
     }
     if (!project) {
-        return <div className="p-8">NO projects found</div>
+        return <div className="p-8 pt-28">NO projects found</div>
     }
 
     return (
-        <div className="min-h-screen bg-[var(--color-cream)]">
-            <div className="container mx-auto px-8 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900
+  dark:to-slate-800">
+          <div className="container mx-auto px-8 py-12 pt-28">
 
-                {/* Project Header */}
-                <div className="mb-8">
-                    <div className="flex justify-between items-start">
+              {/* Project Header */}
+              <Card className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg mb-8">
+                  <CardContent className="p-8">
+                      <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                              <h1 className="font-serif text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+                                  {project.name}
+                              </h1>
+                              <p className="text-slate-600 dark:text-slate-400 text-lg">
+                                  {project.description}
+                              </p>
+                          </div>
+                          <div className="flex gap-3 ml-8">
+                              <Button
+                                  variant="outline"
+                                  onClick={() => {
+                                      setEditProjectId(project.id);
+                                      setEditFormData({
+                                          name: project.name,
+                                          description: project.description,
+                                          client_id: project.client_id
+                                      })
+                                  }}
+                                  className="dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                              >
+                                  Edit Project
+                              </Button>
+                              <Button
+                                  variant="destructive"
+                                  onClick={() => setDeleteProjectId(project.id)}
+                              >
+                                  Delete Project
+                              </Button>
+                          </div>
+                      </div>
+                  </CardContent>
+              </Card>
 
-                        <div className="flex-1">
-                            <h1 className="font-serif text-5xl font-semibold text-[var(--color-charcoal)] mb-4">
-                                {project.name}
-                            </h1>
-                            <p className="text-[var(--color-warm-gray)] text-lg">
-                                {project.description}
-                            </p>
+              {/* Tasks Section */}
+              <Card className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg mb-6">
+                  <CardHeader className="border-b border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex justify-between items-center">
+                          <div>
+                              <CardTitle className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                                  Tasks
+                              </CardTitle>
+                              <p className="text-slate-600 dark:text-slate-400 mt-1">{tasks.length} total tasks</p>
+                          </div>
+                          <div className="flex gap-3">
+                              <div className="flex gap-2 border border-slate-200 dark:border-slate-600 rounded-lg p-1">
+                                  <Button
+                                      onClick={() => setViewMode('list')}
+                                      variant={viewMode === 'list' ? 'default' : 'ghost'}
+                                      size="sm"
+                                  >
+                                      List
+                                  </Button>
+                                  <Button
+                                      onClick={() => setViewMode('kanban')}
+                                      variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                                      size="sm"
+                                  >
+                                      Kanban
+                                  </Button>
+                              </div>
+                              <Button
+                                  onClick={handleAiAnalysis}
+                                  disabled={aiLoading}
+                                  className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800"
+                              >
+                                  {aiLoading ? 'Analyzing...' : 'AI Analyze'}
+                              </Button>
+                              <Button
+                                  onClick={() => setShowCreatetaskModal(true)}
+                                  className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                              >
+                                  + Add Task
+                              </Button>
+                          </div>
+                      </div>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                      {tasks.length === 0 ? (
+                          <p className="text-slate-500 dark:text-slate-400 text-center py-8">No tasks yet. Click "Add Task" to get started!</p>
+                      ) : viewMode === 'list' ? (
+                          <div className="space-y-3">
+                              {tasks.map((task) => (
+                                  <div key={task.id} className="p-4 rounded-lg bg-slate-50/50 dark:bg-slate-700/50 border border-slate-200/50
+  dark:border-slate-600/50 hover:bg-slate-100/50 dark:hover:bg-slate-600/50 transition-colors">
+                                      <div className="flex items-start justify-between">
+                                          <div className="flex-1">
+                                              <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">{task.title}</h3>
+                                              <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{task.description}</p>
+                                              <div className="flex gap-3 mt-3">
+                                                  <Badge variant={task.priority === 'urgent' ? 'destructive' : 'secondary'}>
+                                                      {task.priority}
+                                                  </Badge>
+                                                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                      {task.estimated_hours}hrs
+                                                  </span>
+                                                  <Badge variant={task.status === 'done' ? 'default' : 'outline'}>
+                                                      {task.status}
+                                                  </Badge>
+                                              </div>
+                                          </div>
+                                          <div className="flex gap-2 ml-4">
+                                              <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  onClick={() => {
+                                                      setEditTaskId(task.id);
+                                                      setEditTaskData({
+                                                          title: task.title,
+                                                          description: task.description,
+                                                          priority: task.priority,
+                                                          estimated_hours: task.estimated_hours,
+                                                          status: task.status
+                                                      });
+                                                  }}
+                                                  className="text-blue-600 dark:text-blue-400"
+                                              >
+                                                  Edit
+                                              </Button>
+                                              <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  onClick={() => handleDeleteTask(task.id)}
+                                                  className="text-red-600 dark:text-red-400"
+                                              >
+                                                  Delete
+                                              </Button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              ))}
+                          </div>
+                      ) : (
+                          <KanbanBoard
+                              tasks={tasks}
+                              onDragEnd={handleDragEnd}
+                              onEditTask={(task) => {
+                                  setEditTaskId(task.id);
+                                  setEditTaskData({
+                                      title: task.title,
+                                      description: task.description,
+                                      priority: task.priority,
+                                      estimated_hours: task.estimated_hours,
+                                      status: task.status
+                                  });
+                              }}
+                              onDeleteTask={handleDeleteTask}
+                          />
+                      )}
+                  </CardContent>
+              </Card>
 
-                        </div>
-                        <div className="flex gap-3 ml-4">
-                            <button className="flex-1 px-4 py-2 bg-[var(--color-charcoal)] text-[var(--color-cream)] rounded
-  hover:bg-[var(--color-terracotta)] transition-colors duration-200 text-sm" onClick={() => { setEditProjectId(project.id); setEditFormData({ name: project.name, description: project.description, client_id: project.client_id }) }} >Edit Project</button>
-                            <button className="flex-1 px-6 py-2 bg-[var(--color-charcoal)] text-[var(--color-cream)] rounded
-  hover:bg-[var(--color-terracotta)] transition-colors duration-200 text-sm" onClick={() => setDeleteProjectId(project.id)}>Delete Project</button>
-                        </div>
-                        <div className="flex gap-3 ml-4">
+              {/* Income Section - Placeholder */}
+              <Card className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg mb-6">
+                  <CardContent className="p-6">
+                      <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+                          Income
+                      </h2>
+                      <p className="text-slate-500 dark:text-slate-400">Income section coming soon...</p>
+                  </CardContent>
+              </Card>
 
-                        </div>
+              {/* Expenses Section - Placeholder */}
+              <Card className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg">
+                  <CardContent className="p-6">
+                      <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+                          Expenses
+                      </h2>
+                      <p className="text-slate-500 dark:text-slate-400">Expenses section coming soon...</p>
+                  </CardContent>
+              </Card>
 
-                    </div>
-                </div>
+              {/* Edit Project Modal */}
+              {editProjectId && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+                      <Card className="w-96 dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100">Edit Project</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleEditSubmit}>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">
+                                          Project Name
+                                      </label>
+                                      <input
+                                          type="text"
+                                          value={editFormData.name}
+                                          onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          required
+                                      />
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">
+                                          Description
+                                      </label>
+                                      <textarea
+                                          value={editFormData.description}
+                                          onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          rows="3"
+                                      />
+                                  </div>
+                                  <div className="mb-6">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">
+                                          Client (Optional)
+                                      </label>
+                                      <select
+                                          value={editFormData.client_id}
+                                          onChange={(e) => setEditFormData({...editFormData, client_id: e.target.value})}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                      >
+                                          <option value="">-- No Client --</option>
+                                          {clients.map((client) => (
+                                              <option key={client.id} value={client.id}>
+                                                  {client.name} {client.company_name && `(${client.company_name})`}
+                                              </option>
+                                          ))}
+                                      </select>
+                                  </div>
+                                  <div className="flex gap-4">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => {
+                                              setEditProjectId(null);
+                                              setEditFormData({ name: '', description: '', client_id: '' });
+                                          }}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">
+                                          Update
+                                      </Button>
+                                  </div>
+                              </form>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
+              {/* Delete Project Modal */}
+              {deleteProjectId && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+                      <Card className="w-96 dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="text-red-600 dark:text-red-400">Delete Project</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <p className="mb-4 dark:text-slate-300">
+                                  Are you sure you want to delete this project? This action cannot be undone.
+                              </p>
+                              <div className="mb-6">
+                                  <label className="block text-sm font-bold mb-2 dark:text-slate-200">
+                                      Type <span className="text-red-600">DELETE</span> to confirm:
+                                  </label>
+                                  <input
+                                      type="text"
+                                      value={deleteConfirmText}
+                                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                      className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
+                                      placeholder="DELETE"
+                                  />
+                              </div>
+                              <div className="flex gap-4">
+                                  <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                          setDeleteProjectId(null);
+                                          setDeleteConfirmText('');
+                                      }}
+                                      className="flex-1"
+                                  >
+                                      Cancel
+                                  </Button>
+                                  <Button
+                                      variant="destructive"
+                                      onClick={handleDelete}
+                                      className="flex-1"
+                                  >
+                                      Delete Project
+                                  </Button>
+                              </div>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
-                {/* Tasks Section */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold text-[var(--color-charcoal)]">
-                            ✅ Tasks ({tasks.length})
-                        </h2>
-                        <div className="flex gap-3">
-                            <div className="flex gap-2 mr-4">
-                                <button
-                                    onClick={() => setViewMode('list')}
-                                    className={`px-3 py-1 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-                                >
-                                    List
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('kanban')}
-                                    className={`px-3 py-1 rounded ${viewMode === 'kanban' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-                                >
-                                    Kanban
-                                </button>
-                            </div>
-                            <button
-                                onClick={handleAiAnalysis}
-                                disabled={aiLoading}
-                                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400"
-                            >
-                                {aiLoading ? '🤖 Analyzing...' : '🤖 Analyze with AI'}
-                            </button>
-                            <button onClick={() => setShowCreatetaskModal(true)} className="px-4 py-2 bg-[var(--color-forest-green)] text-white rounded hover:bg-green-700">
-                                + Add Task
-                            </button>
-                        </div>
-                    </div>
+              {/* AI Modal */}
+              {showAiModal && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+                      <Card className="w-[800px] max-h-[80vh] overflow-y-auto dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100">AI-Generated Tasks</CardTitle>
+                              <p className="text-slate-600 dark:text-slate-400">
+                                  Review the AI suggestions below and create tasks
+                              </p>
+                          </CardHeader>
+                          <CardContent>
+                              <div className="space-y-4 mb-6">
+                                  {aiSugesstions.map((task, index) => (
+                                      <div key={index} className="border rounded p-4 dark:bg-slate-700 dark:border-slate-600">
+                                          <h3 className="font-bold text-lg mb-2 dark:text-slate-100">{task.title}</h3>
+                                          <p className="text-sm mb-3 dark:text-slate-300">{task.description}</p>
+                                          <div className="flex gap-3 flex-wrap">
+                                              <Badge>Priority: {task.priority}</Badge>
+                                              <Badge variant="secondary">Est: {task.estimated_hours}hrs</Badge>
+                                              {task.tags.map((tag, i) => (
+                                                  <Badge key={i} variant="outline">#{tag}</Badge>
+                                              ))}
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                              <div className="flex gap-4">
+                                  <Button
+                                      variant="outline"
+                                      onClick={() => setShowAiModal(false)}
+                                      className="flex-1"
+                                  >
+                                      Cancel
+                                  </Button>
+                                  <Button
+                                      onClick={() => handleCreateTasks()}
+                                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                                  >
+                                      Create All Tasks
+                                  </Button>
+                              </div>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
-                    {/* Task List */}
-                    {tasks.length === 0 ? (
-                        <p className="text-gray-500">No tasks yet. Click "Add Task" to get started!</p>
-                    ) : viewMode === 'list' ? (
-                        <div className="space-y-3">
-                            {tasks.map((task) => (
-                                <div key={task.id} className="border border-gray-200 rounded p-4 hover:bg-gray-50">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-lg">{task.title}</h3>
-                                            <p className="text-gray-600 text-sm mt-1">{task.description}</p>
-                                            <div className="flex gap-4 mt-2 text-sm">
-                                                <span className="text-gray-500">
-                                                    Priority: <span className="font-medium">{task.priority}</span>
-                                                </span>
-                                                <span className="text-gray-500">
-                                                    Est: <span className="font-medium">{task.estimated_hours}hrs</span>
-                                                </span>
-                                                <span className={`font-medium ${task.status === 'done' ? 'text-green-600' : 'text-orange-600'
-                                                    }`}>
-                                                    {task.status}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2 ml-4">
-                                            <button onClick={() => {
-                                                setEditTaskId(task.id);
-                                                setEditTaskData({
-                                                    title: task.title,
-                                                    description: task.description,
-                                                    priority: task.priority,
-                                                    estimated_hours: task.estimated_hours,
-                                                    status: task.status
-                                                });
-                                            }} className="text-blue-600 hover:text-blue-800 text-sm">
-                                                Edit
-                                            </button>
-                                            <button onClick={() => handleDeleteTask(task.id)} className="text-red-600 hover:text-red-800 text-sm">
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <KanbanBoard
-                            tasks={tasks}
-                            onDragEnd={handleDragEnd}
-                            onEditTask={(task) => {
-                                setEditTaskId(task.id);
-                                setEditTaskData({
-                                    title: task.title,
-                                    description: task.description,
-                                    priority: task.priority,
-                                    estimated_hours: task.estimated_hours,
-                                    status: task.status
-                                });
-                            }}
-                            onDeleteTask={handleDeleteTask}
-                        />
+              {/* Edit Task Modal */}
+              {editTaskId && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+                      <Card className="w-[600px] dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100">Edit Task</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleEditTaskSubmit}>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Task Title</label>
+                                      <input
+                                          type="text"
+                                          value={editTaskData.title}
+                                          onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          required
+                                      />
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Description</label>
+                                      <textarea
+                                          value={editTaskData.description}
+                                          onChange={(e) => setEditTaskData({ ...editTaskData, description: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          rows="3"
+                                      />
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Priority</label>
+                                      <select
+                                          value={editTaskData.priority}
+                                          onChange={(e) => setEditTaskData({ ...editTaskData, priority: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                      >
+                                          <option value="low">Low</option>
+                                          <option value="medium">Medium</option>
+                                          <option value="high">High</option>
+                                          <option value="urgent">Urgent</option>
+                                      </select>
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Estimated Hours</label>
+                                      <input
+                                          type="number"
+                                          value={editTaskData.estimated_hours}
+                                          onChange={(e) => setEditTaskData({ ...editTaskData, estimated_hours: parseInt(e.target.value) })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          min="0"
+                                      />
+                                  </div>
+                                  <div className="mb-6">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Status</label>
+                                      <select
+                                          value={editTaskData.status}
+                                          onChange={(e) => setEditTaskData({ ...editTaskData, status: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                      >
+                                          <option value="todo">To Do</option>
+                                          <option value="in-progress">In Progress</option>
+                                          <option value="review">Review</option>
+                                          <option value="done">Done</option>
+                                          <option value="blocked">Blocked</option>
+                                      </select>
+                                  </div>
+                                  <div className="flex gap-4">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => {
+                                              setEditTaskId(null);
+                                              setEditTaskData({ title: '', description: '', priority: 'medium', estimated_hours: 0, status: 'todo'      
+  });
+                                          }}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">Update Task</Button>
+                                  </div>
+                              </form>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
-                    )}
-                </div>
+              {/* Create Task Modal */}
+              {showCreatetaskModal && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+                      <Card className="w-[600px] dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100">Create New Task</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleTaskSubmit}>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Task Title</label>
+                                      <input
+                                          type="text"
+                                          onChange={(e) => setTaskData({ ...taskData, title: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          required
+                                      />
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Description</label>
+                                      <textarea
+                                          onChange={(e) => setTaskData({ ...taskData, description: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          rows="3"
+                                      />
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Priority</label>
+                                      <select
+                                          onChange={(e) => setTaskData({ ...taskData, priority: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                      >
+                                          <option value="low">Low</option>
+                                          <option value="medium">Medium</option>
+                                          <option value="high">High</option>
+                                          <option value="urgent">Urgent</option>
+                                      </select>
+                                  </div>
+                                  <div className="mb-4">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Estimated Hours</label>
+                                      <input
+                                          type="number"
+                                          onChange={(e) => setTaskData({ ...taskData, estimated_hours: parseInt(e.target.value) })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                          min="0"
+                                      />
+                                  </div>
+                                  <div className="mb-6">
+                                      <label className="block text-sm font-bold mb-2 dark:text-slate-200">Status</label>
+                                      <select
+                                          onChange={(e) => setTaskData({ ...taskData, status: e.target.value })}
+                                          className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"       
+                                      >
+                                          <option value="todo">To Do</option>
+                                          <option value="in-progress">In Progress</option>
+                                          <option value="review">Review</option>
+                                          <option value="done">Done</option>
+                                          <option value="blocked">Blocked</option>
+                                      </select>
+                                  </div>
+                                  <div className="flex gap-4">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => {
+                                              setShowCreatetaskModal(false);
+                                              setTaskData({ title: '', description: '', priority: 'medium', estimated_hours: 0, status: 'todo' });      
+                                          }}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">Create</Button>
+                                  </div>
+                              </form>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
-                {/* Income Section - Placeholder for now */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-2xl font-bold text-[var(--color-charcoal)] mb-4">
-                        💰 Income
-                    </h2>
-                    <p className="text-gray-500">Income section coming soon...</p>
-                </div>
-
-                {/* Expenses Section - Placeholder for now */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-bold text-[var(--color-charcoal)] mb-4">
-                        💸 Expenses
-                    </h2>
-                    <p className="text-gray-500">Expenses section coming soon...</p>
-                </div>
-                {editProjectId && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-8 w-96">
-                            <h2 className="text-2xl font-bold mb-6">Edit Project</h2>
-
-                            <form onSubmit={handleEditSubmit}>
-                                {/* Name input */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Project Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={editFormData.name}
-                                        onChange={(e) => setEditFormData({
-                                            ...editFormData,
-                                            name: e.target.value
-                                        })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Description input */}
-                                <div className="mb-6">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        name="description"
-                                        value={editFormData.description}
-                                        onChange={(e) => setEditFormData({
-                                            ...editFormData,
-                                            description: e.target.value
-                                        })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        rows="3"
-                                    />
-                                </div>
-                                {/* Client dropdown */}
-                                <div className="mb-6">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Client (Optional)
-                                    </label>
-                                    <select
-                                        name="client_id"
-                                        value={editFormData.client_id}
-                                        onChange={(e) => setEditFormData({
-                                            ...editFormData,
-                                            client_id: e.target.value
-                                        })}
-                                        className="w-full px-3 py-2 border rounded"
-                                    >
-                                        <option value="">-- No Client --</option>
-                                        {clients.map((client) => (
-                                            <option key={client.id} value={client.id}>
-                                                {client.name} {client.company_name && `(${client.company_name})`}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setEditProjectId(null);
-                                            setEditFormData({ name: '', description: '', client_id: '' });
-                                        }}
-                                        className="flex-1 px-4 py-2 border rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    >
-                                        Update
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-                {deleteProjectId && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-8 w-96">
-                            <h2 className="text-2xl font-bold mb-4 text-red-600">Delete Project</h2>
-                            <p className="mb-4 text-gray-700">
-                                Are you sure you want to delete this project? This action cannot be undone.
-                            </p>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    Type <span className="text-red-600">DELETE</span> to confirm:
-                                </label>
-                                <input
-                                    type="text"
-                                    value={deleteConfirmText}
-                                    onChange={(e) => setDeleteConfirmText(e.target.value)}
-                                    className="w-full px-3 py-2 border rounded"
-                                    placeholder="DELETE"
-                                />
-                            </div>
-
-                            <div className="flex gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDeleteProjectId(null);
-                                        setDeleteConfirmText('');
-                                    }}
-                                    className="flex-1 px-4 py-2 border rounded"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleDelete}
-                                    className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                >
-                                    Delete Project
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {showAiModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-8 w-[800px] max-h-[80vh] overflow-y-auto">
-                            <h2 className="text-2xl font-bold mb-4">🤖 AI-Generated Tasks</h2>
-                            <p className="text-gray-600 mb-6">
-                                Review the AI suggestions below and create tasks
-                            </p>
-
-                            {/* AI Suggestions List */}
-                            <div className="space-y-4 mb-6">
-                                {aiSugesstions.map((task, index) => (
-                                    <div key={index} className="border border-gray-200 rounded p-4 bg-gray-50">
-                                        <h3 className="font-bold text-lg mb-2">{task.title}</h3>
-                                        <p className="text-gray-700 text-sm mb-3">{task.description}</p>
-                                        <div className="flex gap-4 text-sm">
-                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                                Priority: {task.priority}
-                                            </span>
-                                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                                                Est: {task.estimated_hours}hrs
-                                            </span>
-                                            <div className="flex gap-1">
-                                                {task.tags.map((tag, i) => (
-                                                    <span key={i} className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                                                        #{tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Buttons */}
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={() => setShowAiModal(false)}
-                                    className="flex-1 px-4 py-2 border rounded hover:bg-gray-100"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => handleCreateTasks()}
-                                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                                >
-                                    Create All Tasks
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {/* Edit Task Modal */}
-                {editTaskId && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-8 w-[600px]">
-                            <h2 className="text-2xl font-bold mb-6">Edit Task</h2>
-
-                            <form onSubmit={handleEditTaskSubmit}>
-                                {/* Title */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Task Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={editTaskData.title}
-                                        onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Description */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        value={editTaskData.description}
-                                        onChange={(e) => setEditTaskData({ ...editTaskData, description: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        rows="3"
-                                    />
-                                </div>
-
-                                {/* Priority */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Priority
-                                    </label>
-                                    <select
-                                        value={editTaskData.priority}
-                                        onChange={(e) => setEditTaskData({ ...editTaskData, priority: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                    >
-                                        <option value="low">Low</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="high">High</option>
-                                        <option value="urgent">Urgent</option>
-                                    </select>
-                                </div>
-
-                                {/* Estimated Hours */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Estimated Hours
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={editTaskData.estimated_hours}
-                                        onChange={(e) => setEditTaskData({ ...editTaskData, estimated_hours: parseInt(e.target.value) })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        min="0"
-                                    />
-                                </div>
-
-                                {/* Status */}
-                                <div className="mb-6">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Status
-                                    </label>
-                                    <select
-                                        value={editTaskData.status}
-                                        onChange={(e) => setEditTaskData({ ...editTaskData, status: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                    >
-                                        <option value="todo">To Do</option>
-                                        <option value="in-progress">In Progress</option>
-                                        <option value="review">Review</option>
-                                        <option value="done">Done</option>
-                                        <option value="blocked">Blocked</option>
-                                    </select>
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setEditTaskId(null);
-                                            setEditTaskData({ title: '', description: '', priority: 'medium', estimated_hours: 0, status: 'todo' });
-                                        }}
-                                        className="flex-1 px-4 py-2 border rounded hover:bg-gray-100"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                    >
-                                        Update Task
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-                {showCreatetaskModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-8 w-[600px]">
-                            <h2 className="text-2xl font-bold mb-6">Edit Task</h2>
-
-                            <form onSubmit={handleTaskSubmit}>
-                                {/* Title */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Task Title
-                                    </label>
-                                    <input
-                                        type="text"
-
-                                        onChange={(e) => setTaskData({ ...taskData, title: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Description */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-
-                                        onChange={(e) => setTaskData({ ...taskData, description: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        rows="3"
-                                    />
-                                </div>
-
-                                {/* Priority */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Priority
-                                    </label>
-                                    <select
-
-                                        onChange={(e) => setTaskData({ ...taskData, priority: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                    >
-                                        <option value="low">Low</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="high">High</option>
-                                        <option value="urgent">Urgent</option>
-                                    </select>
-                                </div>
-
-                                {/* Estimated Hours */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Estimated Hours
-                                    </label>
-                                    <input
-                                        type="number"
-
-                                        onChange={(e) => setTaskData({ ...taskData, estimated_hours: parseInt(e.target.value) })}
-                                        className="w-full px-3 py-2 border rounded"
-                                        min="0"
-                                    />
-                                </div>
-
-                                {/* Status */}
-                                <div className="mb-6">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Status
-                                    </label>
-                                    <select
-
-                                        onChange={(e) => setTaskData({ ...taskData, status: e.target.value })}
-                                        className="w-full px-3 py-2 border rounded"
-                                    >
-                                        <option value="todo">To Do</option>
-                                        <option value="in-progress">In Progress</option>
-                                        <option value="review">Review</option>
-                                        <option value="done">Done</option>
-                                        <option value="blocked">Blocked</option>
-                                    </select>
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowCreatetaskModal(false)
-
-                                            setTaskData({ title: '', description: '', priority: 'medium', estimated_hours: 0, status: 'todo' });
-                                        }}
-                                        className="flex-1 px-4 py-2 border rounded hover:bg-gray-100"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                    >
-                                        create
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-
-            </div>
-        </div>
-    )
+          </div>
+      </div>
+  )
 }
 
 export default ProjectDetail;

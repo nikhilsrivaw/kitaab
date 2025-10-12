@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {  incomeAPI, projectAPI } from '../services/api';
 import Navbar from '../components/Navbar';
+ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+  import { Button } from '@/components/ui/button';
+  import { Badge } from '@/components/ui/badge';
 
 const Income = () => {
     const { projectId } = useParams();
@@ -133,301 +136,351 @@ const Income = () => {
     }, [projectId]);
 
     return (
-        <div className="min-h-screen bg-[var(--color-cream)]">
-            
-            <div className="container mx-auto px-8 py-12">
-                <h1 className="font-serif text-5xl font-semibold text-[var(--color-charcoal)] mb-8">
-                    Income 
-                </h1>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900
+  dark:to-slate-800">
+          <div className="container mx-auto px-8 py-12 pt-28">
+              {/* Header */}
+              <div className="mb-12 flex justify-between items-center">
+                  <div>
+                      <h1 className="font-serif text-6xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                          Project Income
+                      </h1>
+                      <p className="text-slate-600 dark:text-slate-400 text-lg">
+                          Track and manage project income
+                      </p>
+                  </div>
+                  <Button
+                      onClick={() => setShowCreateModal(true)}
+                      className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                      size="lg"
+                  >
+                      + Add Income
+                  </Button>
+              </div>
 
-                <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="px-6 py-3 bg-[var(--color-forest-green)] text-white rounded"
-                >
-                    Add incomes
-                </button>
-                {loading && (
-                    <p className="mt-8 text-[var(--color-warm-gray)]">Loading Incomes...</p>
-                )}
-                {error && (
-                    <div className="mt-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        {error}
-                    </div>
-                )}
-                {!loading && !error && income.length === 0 && (
-                    <p className="mt-8 text-[var(--color-warm-gray)] text-lg">
-                        No income yet .... 
-                    </p>
-                )}
-                {!loading && income.length > 0 && (
-                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {income.map((income) => (
-                            <div key={income.id} className="bg-white p-6 rounded shadow">
-                                <h3 className="font-bold text-xl">${income.amount}</h3>
-                                <p className="text-gray-600 mt-2">{income.source}</p>
-                                <p className="text-gray-500 text-sm mt-1">{income.description}</p>
-                                <p className="text-gray-400 text-xs mt-1">{income.date}</p>
+              {/* Loading State */}
+              {loading && (
+                  <p className="text-slate-500 dark:text-slate-400 text-center py-12">Loading income...</p>
+              )}
 
-                                <div className="flex gap-2 mt-4">
-                                    <button
-                                        onClick={() => {
-                                            setEditIncomeId(income.id);
-                                            setEditFormData({
-                                                project_id: income.project_id,
-                                                amount: income.amount,
-                                                source: income.source,
-                                                description: income.description,
-                                                date: income.date
-                                            });
-                                        }}
-                                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => setDeleteIncomeId(income.id)}
-                                        className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+              {/* Error State */}
+              {error && (
+                  <Card className="border-0 bg-red-50 dark:bg-red-900/20 mb-8">
+                      <CardContent className="p-4">
+                          <p className="text-red-700 dark:text-red-400">{error}</p>
+                      </CardContent>
+                  </Card>
+              )}
 
-                {/* Create Modal - OUTSIDE the expenses list! */}
-                {showCreateModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-8 w-96">
-                            <h2 className="text-2xl font-bold mb-6">Add Income</h2>
+              {/* Empty State */}
+              {!loading && !error && income.length === 0 && (
+                  <Card className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg">
+                      <CardContent className="p-12 text-center">
+                          <div className="mb-4 text-6xl">💰</div>
+                          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                              No income yet
+                          </h3>
+                          <p className="text-slate-600 dark:text-slate-400 mb-6">
+                              Start tracking your project income
+                          </p>
+                          <Button
+                              onClick={() => setShowCreateModal(true)}
+                              className="bg-emerald-600 hover:bg-emerald-700"
+                          >
+                              Add Your First Income
+                          </Button>
+                      </CardContent>
+                  </Card>
+              )}
 
-                            <form onSubmit={handleSubmit}>
-                                {/* Amount */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Amount ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="amount"
-                                        value={formData.amount}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
+              {/* Income Grid */}
+              {!loading && income.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {income.map((item) => (
+                          <Card
+                              key={item.id}
+                              className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all
+  duration-300 hover:-translate-y-1"
+                          >
+                              <CardHeader>
+                                  <div className="flex items-center justify-between mb-2">
+                                      <CardTitle className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                                          ${parseFloat(item.amount).toFixed(2)}
+                                      </CardTitle>
+                                      <Badge variant="default" className="w-fit bg-emerald-600">
+                                          {item.source}
+                                      </Badge>
+                                  </div>
+                              </CardHeader>
+                              <CardContent>
+                                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
+                                      {item.description || 'No description'}
+                                  </p>
+                                  <p className="text-slate-400 dark:text-slate-500 text-xs mb-4">
+                                      {new Date(item.date).toLocaleDateString()}
+                                  </p>
+                                  <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                      <Button
+                                          onClick={() => {
+                                              setEditIncomeId(item.id);
+                                              setEditFormData({
+                                                  project_id: item.project_id,
+                                                  amount: item.amount,
+                                                  source: item.source,
+                                                  description: item.description,
+                                                  date: item.date
+                                              });
+                                          }}
+                                          variant="outline"
+                                          className="flex-1"
+                                      >
+                                          Edit
+                                      </Button>
+                                      <Button
+                                          onClick={() => setDeleteIncomeId(item.id)}
+                                          variant="destructive"
+                                          className="flex-1"
+                                      >
+                                          Delete
+                                      </Button>
+                                  </div>
+                              </CardContent>
+                          </Card>
+                      ))}
+                  </div>
+              )}
 
-                                {/* Category */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Source
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="source"
-                                        value={formData.source}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        placeholder="e.g., Food, Hosting, Tools"
-                                        required
-                                    />
-                                </div>
+              {/* Create Modal */}
+              {showCreateModal && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+                      <Card className="w-full max-w-md dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100 text-2xl">Add Income</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleSubmit}>
+                                  <div className="space-y-4">
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Amount ($) *
+                                          </label>
+                                          <input
+                                              type="number"
+                                              name="amount"
+                                              value={formData.amount}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              step="0.01"
+                                              required
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Source *
+                                          </label>
+                                          <input
+                                              type="text"
+                                              name="source"
+                                              value={formData.source}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              placeholder="e.g., Client Payment, Grant, Investment"
+                                              required
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Description
+                                          </label>
+                                          <textarea
+                                              name="description"
+                                              value={formData.description}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              rows="3"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Date *
+                                          </label>
+                                          <input
+                                              type="date"
+                                              name="date"
+                                              value={formData.date}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              required
+                                          />
+                                      </div>
+                                  </div>
+                                  <div className="flex gap-4 mt-6">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => setShowCreateModal(false)}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">
+                                          Add Income
+                                      </Button>
+                                  </div>
+                              </form>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
-                                {/* Description */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        rows="3"
-                                    />
-                                </div>
+              {/* Edit Modal */}
+              {editIncomeId && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+                      <Card className="w-full max-w-md dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100 text-2xl">Edit Income</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleEditSubmit}>
+                                  <div className="space-y-4">
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Amount ($) *
+                                          </label>
+                                          <input
+                                              type="number"
+                                              name="amount"
+                                              value={editFormData.amount}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              step="0.01"
+                                              required
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Source *
+                                          </label>
+                                          <input
+                                              type="text"
+                                              name="source"
+                                              value={editFormData.source}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              required
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Description
+                                          </label>
+                                          <textarea
+                                              name="description"
+                                              value={editFormData.description}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              rows="3"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                              Date *
+                                          </label>
+                                          <input
+                                              type="date"
+                                              name="date"
+                                              value={editFormData.date}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                              required
+                                          />
+                                      </div>
+                                  </div>
+                                  <div className="flex gap-4 mt-6">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => {
+                                              setEditIncomeId(null);
+                                              setEditFormData({
+                                                  project_id: '',
+                                                  amount: 0,
+                                                  source: '',
+                                                  description: '',
+                                                  date: ''
+                                              });
+                                          }}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">
+                                          Update
+                                      </Button>
+                                  </div>
+                              </form>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
 
-                                {/* Date */}
-                                <div className="mb-6">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="date"
-                                        value={formData.date}
-                                        onChange={handleChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCreateModal(false)}
-                                        className="flex-1 px-4 py-2 border rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    >
-                                        Add Expense
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-                {/* Delete Modal */}
-                {deleteIncomeId && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-8 w-96">
-                            <h2 className="text-2xl font-bold mb-4 text-red-600">Delete Income</h2>
-                            <p className="mb-4 text-gray-700">
-                                Are you sure you want to delete this income? This action cannot be undone.
-                            </p>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    Type <span className="text-red-600">DELETE</span> to confirm:
-                                </label>
-                                <input
-                                    type="text"
-                                    value={deleteConfirmText}
-                                    onChange={(e) => setDeleteConfirmText(e.target.value)}
-                                    className="w-full px-3 py-2 border rounded"
-                                    placeholder="DELETE"
-                                />
-                            </div>
-
-                            <div className="flex gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDeleteIncomeId(null);
-                                        setDeleteConfirmText('');
-                                    }}
-                                    className="flex-1 px-4 py-2 border rounded"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleDelete}
-                                    className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                >
-                                    Delete Expense
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {/* Edit Modal */}
-                {editIncomeId && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-8 w-96">
-                            <h2 className="text-2xl font-bold mb-6">Edit Income</h2>
-
-                            <form onSubmit={handleEditSubmit}>
-                                {/* Amount */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Amount ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="amount"
-                                        value={editFormData.amount}
-                                        onChange={handleEditChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Category */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Category
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="category"
-                                        value={editFormData.category}
-                                        onChange={handleEditChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Description */}
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        name="description"
-                                        value={editFormData.description}
-                                        onChange={handleEditChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        rows="3"
-                                    />
-                                </div>
-
-                                {/* Date */}
-                                <div className="mb-6">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="date"
-                                        value={editFormData.date}
-                                        onChange={handleEditChange}
-                                        className="w-full px-3 py-2 border rounded"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setEditIncomeId(null);
-                                            setEditFormData({
-                                                project_id: '',
-                                                amount: 0,
-                                                source: '',
-                                                description: '',
-                                                date: ''
-                                            });
-                                        }}
-                                        className="flex-1 px-4 py-2 border rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    >
-                                        Update
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-
-            </div>
-        </div>
-    );
+              {/* Delete Modal */}
+              {deleteIncomeId && (
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+                      <Card className="w-full max-w-md dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="text-red-600 dark:text-red-400">Delete Income</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <p className="mb-4 dark:text-slate-300">
+                                  Are you sure you want to delete this income? This action cannot be undone.
+                              </p>
+                              <div className="mb-6">
+                                  <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                      Type <span className="text-red-600">DELETE</span> to confirm:
+                                  </label>
+                                  <input
+                                      type="text"
+                                      value={deleteConfirmText}
+                                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                      className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
+                                      placeholder="DELETE"
+                                  />
+                              </div>
+                              <div className="flex gap-4">
+                                  <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                          setDeleteIncomeId(null);
+                                          setDeleteConfirmText('');
+                                      }}
+                                      className="flex-1"
+                                  >
+                                      Cancel
+                                  </Button>
+                                  <Button
+                                      variant="destructive"
+                                      onClick={handleDelete}
+                                      className="flex-1"
+                                  >
+                                      Delete Income
+                                  </Button>
+                              </div>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
+          </div>
+      </div>
+  );
 };
 
 export default Income;

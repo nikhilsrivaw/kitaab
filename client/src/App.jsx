@@ -11,11 +11,13 @@ import Income from "./pages/Income";
 import ChatWidget from './components/ChatWidget';
 import Clients from "./pages/Clients";
 import ProjectDetail from "./pages/ProjectDetail";
+import { ThemeProvider } from './components/ThemeProvider';
 
 function App() {
   const { isAuthenticated } = useContext(AuthContext);
 
   return (
+    <ThemeProvider defaultTheme="light" storageKey="kitaab-theme">
     <BrowserRouter>
       {/* ADD NAVBAR HERE - Show only when authenticated */}
       {isAuthenticated && <Navbar />}
@@ -50,6 +52,7 @@ function App() {
       </Routes>
       {isAuthenticated && <ChatWidget />}
     </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
