@@ -1,0 +1,20 @@
+# Server
+  server/node_modules/
+  server/.env
+  server/*.log
+
+  # Client
+  client/node_modules/
+  client/build/
+  client/*.log
+
+  # Documentation (ignore md folder)
+  md/
+
+  # OS
+  .DS_Store
+  Thumbs.db
+
+  # IDE
+  .vscode/
+  .idea/
