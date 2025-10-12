@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { clientAPI } from '../services/api';
-import Navbar from '../components/Navbar';
-
+  import React, { useState, useEffect } from 'react';
+  import { clientAPI } from '../services/api';
+  import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+  import { Button } from '@/components/ui/button';
+  import { Badge } from '@/components/ui/badge';
 const Clients = () => {
     // State for clients list
     const [clients, setClients] = useState([]);
@@ -144,323 +145,501 @@ const Clients = () => {
 
    
 
-    return (
-        
-          <div className="p-8">
-            
-              <div className="flex justify-between items-center mb-8">
-                  <h1 className="text-3xl font-bold">Clients</h1>
-                  <button
+   return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900
+  dark:to-slate-800">
+          <div className="container mx-auto px-8 py-12 pt-28">
+              {/* Header */}
+              <div className="mb-12 flex justify-between items-center">
+                  <div>
+                      <h1 className="font-serif text-6xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                          Clients
+                      </h1>
+                      <p className="text-slate-600 dark:text-slate-400 text-lg">
+                          Manage your client relationships
+                      </p>
+                  </div>
+                  <Button
                       onClick={() => setShowCreateModal(true)}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                      className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                      size="lg"
                   >
-                      Add Client
-                  </button>
+                      + Add Client
+                  </Button>
               </div>
 
+              {/* Loading State */}
+              {loading && (
+                  <p className="text-slate-500 dark:text-slate-400 text-center py-12">Loading clients...</p>
+              )}
+
+              {/* Error State */}
+              {error && (
+                  <Card className="border-0 bg-red-50 dark:bg-red-900/20 mb-8">
+                      <CardContent className="p-4">
+                          <p className="text-red-700 dark:text-red-400">{error}</p>
+                      </CardContent>
+                  </Card>
+              )}
+
+              {/* Empty State */}
+              {!loading && !error && clients.length === 0 && (
+                  <Card className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg">
+                      <CardContent className="p-12 text-center">
+                          <div className="mb-4 text-6xl">👥</div>
+                          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                              No clients yet
+                          </h3>
+                          <p className="text-slate-600 dark:text-slate-400 mb-6">
+                              Get started by adding your first client
+                          </p>
+                          <Button
+                              onClick={() => setShowCreateModal(true)}
+                              className="bg-emerald-600 hover:bg-emerald-700"
+                          >
+                              Add Your First Client
+                          </Button>
+                      </CardContent>
+                  </Card>
+              )}
+
               {/* Clients Grid */}
-              {clients.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                      No clients yet. Add your first client!
-                  </div>
-              ) : (
+              {!loading && clients.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {clients.map((client) => (
-                          <div key={client.id} className="bg-white p-6 rounded-lg shadow-md border">
-                              <h3 className="text-xl font-semibold mb-2">{client.name}</h3>
-                              {client.company_name && (
-                                  <p className="text-gray-600 mb-2">{client.company_name}</p>
-                              )}
-                              <p className="text-gray-600 text-sm mb-2">{client.email}</p>
-                              {client.phone && (
-                                  <p className="text-gray-600 text-sm mb-2">{client.phone}</p>
-                              )}
-                              <div className="mt-4 flex gap-2">
-                                  <button
-                                      onClick={() => {
-                                          setEditClientId(client.id);
-                                          setEditFormData(client);
-                                      }}
-                                      className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                                  >
-                                      Edit
-                                  </button>
-                                  <button
-                                      onClick={() => setDeleteClientId(client.id)}
-                                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                                  >
-                                      Delete
-                                  </button>
-                              </div>
-                          </div>
+                          <Card
+                              key={client.id}
+                              className="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all
+  duration-300 hover:-translate-y-1"
+                          >
+                              <CardHeader>
+                                  <CardTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                                      {client.name}
+                                  </CardTitle>
+                                  {client.company_name && (
+                                      <Badge variant="secondary" className="w-fit">
+                                          {client.company_name}
+                                      </Badge>
+                                  )}
+                              </CardHeader>
+                              <CardContent>
+                                  <div className="space-y-2 mb-4">
+                                      <p className="text-slate-600 dark:text-slate-400 text-sm flex items-center gap-2">
+                                          <span className="font-medium">Email:</span> {client.email || 'N/A'}
+                                      </p>
+                                      {client.phone && (
+                                          <p className="text-slate-600 dark:text-slate-400 text-sm flex items-center gap-2">
+                                              <span className="font-medium">Phone:</span> {client.phone}
+                                          </p>
+                                      )}
+                                      {client.industry && (
+                                          <Badge variant="outline" className="w-fit">
+                                              {client.industry}
+                                          </Badge>
+                                      )}
+                                  </div>
+                                  <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                      <Button
+                                          onClick={() => {
+                                              setEditClientId(client.id);
+                                              setEditFormData(client);
+                                          }}
+                                          variant="outline"
+                                          className="flex-1"
+                                      >
+                                          Edit
+                                      </Button>
+                                      <Button
+                                          onClick={() => setDeleteClientId(client.id)}
+                                          variant="destructive"
+                                          className="flex-1"
+                                      >
+                                          Delete
+                                      </Button>
+                                  </div>
+                              </CardContent>
+                          </Card>
                       ))}
                   </div>
               )}
 
               {/* Create Modal */}
               {showCreateModal && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                      <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                          <h2 className="text-2xl font-bold mb-6">Add New Client</h2>
-                          <form onSubmit={handleSubmit}>
-                              <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Name *</label>
-                                      <input
-                                          type="text"
-                                          name="name"
-                                          value={formData.name}
-                                          onChange={handleChange}
-                                          required
-                                          className="w-full border rounded px-3 py-2"
-                                      />
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+                      <Card className="w-full max-w-2xl dark:bg-slate-800 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100 text-2xl">Add New Client</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleSubmit}>
+                                  <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Name *</label>
+                                          <input
+                                              type="text"
+                                              name="name"
+                                              value={formData.name}
+                                              onChange={handleChange}
+                                              required
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Company Name</label>
+                                          <input
+                                              type="text"
+                                              name="company_name"
+                                              value={formData.company_name}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Email</label>
+                                          <input
+                                              type="email"
+                                              name="email"
+                                              value={formData.email}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Phone</label>
+                                          <input
+                                              type="text"
+                                              name="phone"
+                                              value={formData.phone}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div className="col-span-2">
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Address</label>
+                                          <input
+                                              type="text"
+                                              name="address"
+                                              value={formData.address}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">City</label>
+                                          <input
+                                              type="text"
+                                              name="city"
+                                              value={formData.city}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Country</label>
+                                          <input
+                                              type="text"
+                                              name="country"
+                                              value={formData.country}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Website</label>
+                                          <input
+                                              type="text"
+                                              name="website"
+                                              value={formData.website}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Industry</label>
+                                          <input
+                                              type="text"
+                                              name="industry"
+                                              value={formData.industry}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Hourly Rate</label>
+                                          <input
+                                              type="number"
+                                              name="hourly_rate"
+                                              value={formData.hourly_rate}
+                                              onChange={handleChange}
+                                              step="0.01"
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Currency</label>
+                                          <input
+                                              type="text"
+                                              name="currency"
+                                              value={formData.currency}
+                                              onChange={handleChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div className="col-span-2">
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Notes</label>
+                                          <textarea
+                                              name="notes"
+                                              value={formData.notes}
+                                              onChange={handleChange}
+                                              rows="3"
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
                                   </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Company Name</label>
-                                      <input
-                                          type="text"
-                                          name="company_name"
-                                          value={formData.company_name}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
+                                  <div className="flex gap-4 mt-6">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => setShowCreateModal(false)}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">
+                                          Create Client
+                                      </Button>
                                   </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Email</label>
-                                      <input
-                                          type="email"
-                                          name="email"
-                                          value={formData.email}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Phone</label>
-                                      <input
-                                          type="text"
-                                          name="phone"
-                                          value={formData.phone}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div className="col-span-2">
-                                      <label className="block text-sm font-medium mb-2">Address</label>
-                                      <input
-                                          type="text"
-                                          name="address"
-                                          value={formData.address}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">City</label>
-                                      <input
-                                          type="text"
-                                          name="city"
-                                          value={formData.city}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Country</label>
-                                      <input
-                                          type="text"
-                                          name="country"
-                                          value={formData.country}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Website</label>
-                                      <input
-                                          type="text"
-                                          name="website"
-                                          value={formData.website}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Industry</label>
-                                      <input
-                                          type="text"
-                                          name="industry"
-                                          value={formData.industry}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Hourly Rate</label>
-                                      <input
-                                          type="number"
-                                          name="hourly_rate"
-                                          value={formData.hourly_rate}
-                                          onChange={handleChange}
-                                          step="0.01"
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Currency</label>
-                                      <input
-                                          type="text"
-                                          name="currency"
-                                          value={formData.currency}
-                                          onChange={handleChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div className="col-span-2">
-                                      <label className="block text-sm font-medium mb-2">Notes</label>
-                                      <textarea
-                                          name="notes"
-                                          value={formData.notes}
-                                          onChange={handleChange}
-                                          rows="3"
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                              </div>
-                              <div className="flex justify-end gap-4 mt-6">
-                                  <button
-                                      type="button"
-                                      onClick={() => setShowCreateModal(false)}
-                                      className="px-6 py-2 border rounded hover:bg-gray-100"
-                                  >
-                                      Cancel
-                                  </button>
-                                  <button
-                                      type="submit"
-                                      className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                  >
-                                      Create Client
-                                  </button>
-                              </div>
-                          </form>
-                      </div>
+                              </form>
+                          </CardContent>
+                      </Card>
                   </div>
               )}
 
-              {/* Edit Modal - Similar to Create but with pre-filled data */}
+              {/* Edit Modal */}
               {editClientId && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                      <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                          <h2 className="text-2xl font-bold mb-6">Edit Client</h2>
-                          <form onSubmit={handleEditSubmit}>
-                              <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Name *</label>
-                                      <input
-                                          type="text"
-                                          name="name"
-                                          value={editFormData.name || ''}
-                                          onChange={handleEditChange}
-                                          required
-                                          className="w-full border rounded px-3 py-2"
-                                      />
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+                      <Card className="w-full max-w-2xl dark:bg-slate-800 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+                          <CardHeader>
+                              <CardTitle className="dark:text-slate-100 text-2xl">Edit Client</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <form onSubmit={handleEditSubmit}>
+                                  <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Name *</label>
+                                          <input
+                                              type="text"
+                                              name="name"
+                                              value={editFormData.name || ''}
+                                              onChange={handleEditChange}
+                                              required
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Company Name</label>
+                                          <input
+                                              type="text"
+                                              name="company_name"
+                                              value={editFormData.company_name || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Email</label>
+                                          <input
+                                              type="email"
+                                              name="email"
+                                              value={editFormData.email || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Phone</label>
+                                          <input
+                                              type="text"
+                                              name="phone"
+                                              value={editFormData.phone || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div className="col-span-2">
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Address</label>
+                                          <input
+                                              type="text"
+                                              name="address"
+                                              value={editFormData.address || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">City</label>
+                                          <input
+                                              type="text"
+                                              name="city"
+                                              value={editFormData.city || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Country</label>
+                                          <input
+                                              type="text"
+                                              name="country"
+                                              value={editFormData.country || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Website</label>
+                                          <input
+                                              type="text"
+                                              name="website"
+                                              value={editFormData.website || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Industry</label>
+                                          <input
+                                              type="text"
+                                              name="industry"
+                                              value={editFormData.industry || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Hourly Rate</label>
+                                          <input
+                                              type="number"
+                                              name="hourly_rate"
+                                              value={editFormData.hourly_rate || ''}
+                                              onChange={handleEditChange}
+                                              step="0.01"
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Currency</label>
+                                          <input
+                                              type="text"
+                                              name="currency"
+                                              value={editFormData.currency || ''}
+                                              onChange={handleEditChange}
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
+                                      <div className="col-span-2">
+                                          <label className="block text-sm font-medium mb-2 dark:text-slate-200">Notes</label>
+                                          <textarea
+                                              name="notes"
+                                              value={editFormData.notes || ''}
+                                              onChange={handleEditChange}
+                                              rows="3"
+                                              className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600
+  dark:text-slate-100"
+                                          />
+                                      </div>
                                   </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Company Name</label>
-                                      <input
-                                          type="text"
-                                          name="company_name"
-                                          value={editFormData.company_name || ''}
-                                          onChange={handleEditChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
+                                  <div className="flex gap-4 mt-6">
+                                      <Button
+                                          type="button"
+                                          variant="outline"
+                                          onClick={() => setEditClientId(null)}
+                                          className="flex-1"
+                                      >
+                                          Cancel
+                                      </Button>
+                                      <Button type="submit" className="flex-1">
+                                          Update Client
+                                      </Button>
                                   </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Email</label>
-                                      <input
-                                          type="email"
-                                          name="email"
-                                          value={editFormData.email || ''}
-                                          onChange={handleEditChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div>
-                                      <label className="block text-sm font-medium mb-2">Phone</label>
-                                      <input
-                                          type="text"
-                                          name="phone"
-                                          value={editFormData.phone || ''}
-                                          onChange={handleEditChange}
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                                  <div className="col-span-2">
-                                      <label className="block text-sm font-medium mb-2">Notes</label>
-                                      <textarea
-                                          name="notes"
-                                          value={editFormData.notes || ''}
-                                          onChange={handleEditChange}
-                                          rows="3"
-                                          className="w-full border rounded px-3 py-2"
-                                      />
-                                  </div>
-                              </div>
-                              <div className="flex justify-end gap-4 mt-6">
-                                  <button
-                                      type="button"
-                                      onClick={() => setEditClientId(null)}
-                                      className="px-6 py-2 border rounded hover:bg-gray-100"
-                                  >
-                                      Cancel
-                                  </button>
-                                  <button
-                                      type="submit"
-                                      className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                  >
-                                      Update Client
-                                  </button>
-                              </div>
-                          </form>
-                      </div>
+                              </form>
+                          </CardContent>
+                      </Card>
                   </div>
               )}
 
               {/* Delete Modal */}
               {deleteClientId && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                      <div className="bg-white rounded-lg p-8 max-w-md w-full">
-                          <h2 className="text-2xl font-bold mb-4">Delete Client</h2>
-                          <p className="mb-4">Type DELETE to confirm:</p>
-                          <input
-                              type="text"
-                              value={deleteConfirmText}
-                              onChange={(e) => setDeleteConfirmText(e.target.value)}
-                              className="w-full border rounded px-3 py-2 mb-4"
-                              placeholder="Type DELETE"
-                          />
-                          <div className="flex justify-end gap-4">
-                              <button
-                                  onClick={() => {
-                                      setDeleteClientId(null);
-                                      setDeleteConfirmText('');
-                                  }}
-                                  className="px-6 py-2 border rounded hover:bg-gray-100"
-                              >
-                                  Cancel
-                              </button>
-                              <button
-                                  onClick={handleDelete}
-                                  className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                              >
-                                  Delete
-                              </button>
-                          </div>
-                      </div>
+                  <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+                      <Card className="w-full max-w-md dark:bg-slate-800 dark:border-slate-700">
+                          <CardHeader>
+                              <CardTitle className="text-red-600 dark:text-red-400">Delete Client</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <p className="mb-4 dark:text-slate-300">
+                                  Are you sure you want to delete this client? This action cannot be undone.
+                              </p>
+                              <div className="mb-6">
+                                  <label className="block text-sm font-medium mb-2 dark:text-slate-200">
+                                      Type <span className="text-red-600">DELETE</span> to confirm:
+                                  </label>
+                                  <input
+                                      type="text"
+                                      value={deleteConfirmText}
+                                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                      className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
+                                      placeholder="DELETE"
+                                  />
+                              </div>
+                              <div className="flex gap-4">
+                                  <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                          setDeleteClientId(null);
+                                          setDeleteConfirmText('');
+                                      }}
+                                      className="flex-1"
+                                  >
+                                      Cancel
+                                  </Button>
+                                  <Button
+                                      variant="destructive"
+                                      onClick={handleDelete}
+                                      className="flex-1"
+                                  >
+                                      Delete Client
+                                  </Button>
+                              </div>
+                          </CardContent>
+                      </Card>
                   </div>
               )}
           </div>
-    );
+      </div>
+  );
 };
 
 export default Clients;
