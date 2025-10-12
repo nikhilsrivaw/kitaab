@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Projects from "./pages/Projects";
 import Expenses from "./pages/Expenses";
 import Income from "./pages/Income";
+import ChatWidget from './components/ChatWidget';
 import Clients from "./pages/Clients";
 import ProjectDetail from "./pages/ProjectDetail";
 
@@ -47,6 +48,7 @@ function App() {
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
         />
       </Routes>
+      {isAuthenticated && <ChatWidget />}
     </BrowserRouter>
   )
 }

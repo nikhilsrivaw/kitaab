@@ -20,6 +20,10 @@ api.interceptors.request.use((config) => {
     return config
 });
 
+export const chatAPI = {
+      sendMessage: (message, conversationHistory = []) =>
+          api.post('/chat', { message, conversationHistory })
+  };
 
 export const authAPI = {
     register: (userData) => api.post('/auth/register', userData),
