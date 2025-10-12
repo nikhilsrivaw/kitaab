@@ -25,6 +25,7 @@ const incomeRoutes = require('./routes/incomes');
 const analyticsRoutes = require('./routes/analytics');
 const authMiddleware = require('./middleware/auth');
 const aiRoutes = require('./routes/ai');
+const chatRoutes = require('./routes/chat');
 
 const dashboardRoutes = require('./routes/dashboard');
 const clientRoutes = require('./routes/clients');
@@ -42,6 +43,8 @@ app.use('/api/expenses', authMiddleware, expenseRoutes);
 app.use('/api/incomes', authMiddleware, incomeRoutes);
 app.use('/api/analytics', authMiddleware, analyticsRoutes);
  app.use('/api/ai', authMiddleware, aiRoutes);
+ 
+ app.use('/api/chat', authMiddleware, chatRoutes);
 
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 app.use('/api/clients', authMiddleware, clientRoutes);
