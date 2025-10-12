@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { aiAPI, clientAPI, projectAPI, taskAPI } from '../services/api';
+import KanbanBoard from '../components/KanbanBoard';
 
 
 const ProjectDetail = () => {
     const { id } = useParams();
     const [project, setProject] = useState(null);
+    const [viewMode, setViewMode] = useState('list');
     // const [expenses , setexpenses ] = useState(null);
     const [tasks, setTasks] = useState([])
-    const [taskId , setTaskId] = useState(null)
+    const [taskId, setTaskId] = useState(null)
     const [loading, setLoading] = useState(true);
     const [deleteProjectId, setDeleteProjectId] = useState(null);
     const [taskData, setTaskData] = useState({
@@ -20,7 +22,7 @@ const ProjectDetail = () => {
         status: 'todo'
 
     })
-    const [showCreatetaskModal,setShowCreatetaskModal] = useState(false)
+    const [showCreatetaskModal, setShowCreatetaskModal] = useState(false)
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
     const [error, setError] = useState(null);
     const [editProjectId, setEditProjectId] = useState(null);
@@ -42,13 +44,30 @@ const ProjectDetail = () => {
 
     const projectId = parseInt(id);
 
+    const handleDragEnd = async (result) => {
+        
+        if (!result.destination) return;
+
+        const taskId = parseInt(result.draggableId);
+        const newStatus = result.destination.droppableId;
+
+        try {
+            const task = tasks.find(t => t.id === taskId);
+            await taskAPI.update(taskId, { ...task, status: newStatus });
+            fetchProjects();
+        } catch (error) {
+            console.error('Failed to update task:', error);
+            alert('Failed to move task');
+        }
+    };
+
 
 
     const handleTaskSubmit = async (e) => {
         e.preventDefault();
         try {
 
-            const result = await taskAPI.create({...taskData , project_id: project.id});
+            const result = await taskAPI.create({ ...taskData, project_id: project.id });
             if (result) {
                 setShowCreatetaskModal(false);
                 fetchProjects();
@@ -266,6 +285,20 @@ const ProjectDetail = () => {
                             ✅ Tasks ({tasks.length})
                         </h2>
                         <div className="flex gap-3">
+                            <div className="flex gap-2 mr-4">
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`px-3 py-1 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                                >
+                                    List
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('kanban')}
+                                    className={`px-3 py-1 rounded ${viewMode === 'kanban' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                                >
+                                    Kanban
+                                </button>
+                            </div>
                             <button
                                 onClick={handleAiAnalysis}
                                 disabled={aiLoading}
@@ -282,7 +315,7 @@ const ProjectDetail = () => {
                     {/* Task List */}
                     {tasks.length === 0 ? (
                         <p className="text-gray-500">No tasks yet. Click "Add Task" to get started!</p>
-                    ) : (
+                    ) : viewMode === 'list' ? (
                         <div className="space-y-3">
                             {tasks.map((task) => (
                                 <div key={task.id} className="border border-gray-200 rounded p-4 hover:bg-gray-50">
@@ -324,6 +357,23 @@ const ProjectDetail = () => {
                                 </div>
                             ))}
                         </div>
+                    ) : (
+                        <KanbanBoard
+                            tasks={tasks}
+                            onDragEnd={handleDragEnd}
+                            onEditTask={(task) => {
+                                setEditTaskId(task.id);
+                                setEditTaskData({
+                                    title: task.title,
+                                    description: task.description,
+                                    priority: task.priority,
+                                    estimated_hours: task.estimated_hours,
+                                    status: task.status
+                                });
+                            }}
+                            onDeleteTask={handleDeleteTask}
+                        />
+
                     )}
                 </div>
 
@@ -640,8 +690,8 @@ const ProjectDetail = () => {
                                     </label>
                                     <input
                                         type="text"
-                                        
-                                        onChange={(e) => setTaskData({...taskData,  title: e.target.value })}
+
+                                        onChange={(e) => setTaskData({ ...taskData, title: e.target.value })}
                                         className="w-full px-3 py-2 border rounded"
                                         required
                                     />
@@ -653,8 +703,8 @@ const ProjectDetail = () => {
                                         Description
                                     </label>
                                     <textarea
-                                        
-                                        onChange={(e) => setTaskData({...taskData, description: e.target.value })}
+
+                                        onChange={(e) => setTaskData({ ...taskData, description: e.target.value })}
                                         className="w-full px-3 py-2 border rounded"
                                         rows="3"
                                     />
@@ -666,7 +716,7 @@ const ProjectDetail = () => {
                                         Priority
                                     </label>
                                     <select
-                                        
+
                                         onChange={(e) => setTaskData({ ...taskData, priority: e.target.value })}
                                         className="w-full px-3 py-2 border rounded"
                                     >
@@ -684,8 +734,8 @@ const ProjectDetail = () => {
                                     </label>
                                     <input
                                         type="number"
-                                        
-                                        onChange={(e) => setTaskData({ ...taskData,estimated_hours: parseInt(e.target.value) })}
+
+                                        onChange={(e) => setTaskData({ ...taskData, estimated_hours: parseInt(e.target.value) })}
                                         className="w-full px-3 py-2 border rounded"
                                         min="0"
                                     />
@@ -697,8 +747,8 @@ const ProjectDetail = () => {
                                         Status
                                     </label>
                                     <select
-                                       
-                                        onChange={(e) => setTaskData({...taskData, status: e.target.value })}
+
+                                        onChange={(e) => setTaskData({ ...taskData, status: e.target.value })}
                                         className="w-full px-3 py-2 border rounded"
                                     >
                                         <option value="todo">To Do</option>
@@ -714,7 +764,8 @@ const ProjectDetail = () => {
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            
+                                            setShowCreatetaskModal(false)
+
                                             setTaskData({ title: '', description: '', priority: 'medium', estimated_hours: 0, status: 'todo' });
                                         }}
                                         className="flex-1 px-4 py-2 border rounded hover:bg-gray-100"
