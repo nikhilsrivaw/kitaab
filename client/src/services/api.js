@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+
 const API_BASE_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
@@ -48,6 +49,12 @@ export const taskAPI = {
     update: (id, taskData) => api.put(`/tasks/${id}`, taskData),
     delete: (id) => api.delete(`/tasks/${id}`)
 };
+
+export const aiAPI = {
+    analyzeProject: (projectId , description) =>
+       api.post('/ai/analyze-project', { projectId, description })
+    
+}
 
 // Expense API calls
 export const expenseAPI = {
