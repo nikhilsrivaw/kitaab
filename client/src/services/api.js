@@ -40,7 +40,8 @@ export const projectAPI = {
 };
 
   export const clientAPI = {
-      getAll: () => api.get('/clients'),              
+      getAll: () => api.get('/clients'),   
+      getById: (id) => api.get(`/clients/${id}`),           
       create: (clientData) => api.post('/clients', clientData),  
       update: (id, clientData) => api.put(`/clients/${id}`, clientData),  
       delete: (id) => api.delete(`/clients/${id}`)    
