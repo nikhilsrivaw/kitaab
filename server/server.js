@@ -2,6 +2,8 @@ const pool = require('./config/db')
 const express = require("express")
 const cors = require("cors")
 const dotenv = require("dotenv")
+const http = require('http');
+const { initializeSocket } = require('./socket');
 
 dotenv.config();
 
@@ -26,6 +28,8 @@ const analyticsRoutes = require('./routes/analytics');
 const authMiddleware = require('./middleware/auth');
 const aiRoutes = require('./routes/ai');
 const chatRoutes = require('./routes/chat');
+const channelRoutes = require('./routes/channel');
+const messageRoutes = require('./routes/messages');
 
 const dashboardRoutes = require('./routes/dashboard');
 const clientRoutes = require('./routes/clients');
@@ -43,6 +47,8 @@ app.use('/api/expenses', authMiddleware, expenseRoutes);
 app.use('/api/incomes', authMiddleware, incomeRoutes);
 app.use('/api/analytics', authMiddleware, analyticsRoutes);
  app.use('/api/ai', authMiddleware, aiRoutes);
+ app.use('/api/channels', authMiddleware, channelRoutes);
+  app.use('/api/messages', authMiddleware, messageRoutes);
  
  app.use('/api/chat', authMiddleware, chatRoutes);
 
@@ -60,8 +66,10 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  
-    console.log("backend is running")
-  
-})
+ const server = http.createServer(app);
+  initializeSocket(server);
+
+  server.listen(PORT, () => {
+      console.log('backend is running on port', PORT);
+      console.log('✅ Socket.io initialized');
+  });
