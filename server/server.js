@@ -28,13 +28,17 @@ const analyticsRoutes = require('./routes/analytics');
 const authMiddleware = require('./middleware/auth');
 const aiRoutes = require('./routes/ai');
 const chatRoutes = require('./routes/chat');
-const channelRoutes = require('./routes/channel');
+const channelRoutes = require('./routes/channels');
 const messageRoutes = require('./routes/messages');
 
 const dashboardRoutes = require('./routes/dashboard');
 const clientRoutes = require('./routes/clients');
 
-
+// Debug middleware - logs ALL requests
+  app.use((req, res, next) => {
+      console.log(`📥 ${req.method} ${req.path}`);
+      next();
+  });
 
 
 
@@ -46,11 +50,11 @@ app.use('/api/tasks', authMiddleware, taskRoutes);
 app.use('/api/expenses', authMiddleware, expenseRoutes);
 app.use('/api/incomes', authMiddleware, incomeRoutes);
 app.use('/api/analytics', authMiddleware, analyticsRoutes);
- app.use('/api/ai', authMiddleware, aiRoutes);
- app.use('/api/channels', authMiddleware, channelRoutes);
-  app.use('/api/messages', authMiddleware, messageRoutes);
- 
- app.use('/api/chat', authMiddleware, chatRoutes);
+app.use('/api/ai', authMiddleware, aiRoutes);
+app.use('/api/channels', authMiddleware, channelRoutes);
+app.use('/api/messages', authMiddleware, messageRoutes);
+
+app.use('/api/chat', authMiddleware, chatRoutes);
 
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 app.use('/api/clients', authMiddleware, clientRoutes);
@@ -66,10 +70,10 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
- const server = http.createServer(app);
-  initializeSocket(server);
+const server = http.createServer(app);
+initializeSocket(server);
 
-  server.listen(PORT, () => {
-      console.log('backend is running on port', PORT);
-      console.log('✅ Socket.io initialized');
-  });
+server.listen(PORT, () => {
+  console.log('backend is running on port', PORT);
+  console.log('✅ Socket.io initialized');
+});
