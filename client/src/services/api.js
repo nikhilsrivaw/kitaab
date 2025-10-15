@@ -47,6 +47,28 @@ export const projectAPI = {
       delete: (id) => api.delete(`/clients/${id}`)    
   };
 
+    export const channelAPI = {
+      // Get all channels for logged-in user
+      getAll: () => api.get('/channels'),
+
+      // Get specific channel by ID (with messages)
+      getById: (id) => api.get(`/channels/${id}`),
+
+      // Create a new channel for a project
+      createProjectChannel: (projectData) => api.post('/channels', projectData)
+  };
+   export const messageAPI = {
+      // Get messages for a channel
+      getMessages: (channelId) => api.get(`/messages/${channelId}`),
+
+      // Send a message
+      sendMessage: (messageData) => api.post('/messages', messageData),
+
+      // Add reaction to a message
+      addReaction: (reactionData) => api.post('/messages/reactions', reactionData)
+  };
+
+
 // Task API calls
 export const taskAPI = {
     getAll: (projectId) => api.get(`/tasks/${projectId}`),
