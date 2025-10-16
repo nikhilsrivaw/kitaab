@@ -30,6 +30,7 @@ const aiRoutes = require('./routes/ai');
 const chatRoutes = require('./routes/chat');
 const channelRoutes = require('./routes/channels');
 const messageRoutes = require('./routes/messages');
+const uploadRoutes = require('./routes/upload');
 
 const dashboardRoutes = require('./routes/dashboard');
 const clientRoutes = require('./routes/clients');
@@ -53,7 +54,7 @@ app.use('/api/analytics', authMiddleware, analyticsRoutes);
 app.use('/api/ai', authMiddleware, aiRoutes);
 app.use('/api/channels', authMiddleware, channelRoutes);
 app.use('/api/messages', authMiddleware, messageRoutes);
-
+app.use('/api/upload', authMiddleware, uploadRoutes);
 app.use('/api/chat', authMiddleware, chatRoutes);
 
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);

@@ -1,32 +1,38 @@
  const pool = require('../config/db');
   const { getIO } = require('../socket');
 
-  const sendMessage = async (req, res) => {
-      const { channel_id, content } = req.body;
+const sendMessage = async (req, res) => {
+      const { channel_id, content, attachments } = req.body;
       const user_id = req.user.id;
 
+      console.log('=== BACKEND: sendMessage called ===');
+      console.log('channel_id:', channel_id);
+      console.log('content:', content);
+      console.log('attachments:', attachments);
+      console.log('attachments type:', typeof attachments);
+      console.log('JSON.stringify(attachments):', JSON.stringify(attachments));
+
       try {
-          // Check membership
           const IsMember = await pool.query(
               'SELECT * FROM channel_members WHERE user_id = $1 AND channel_id = $2',
               [user_id, channel_id]
           );
 
           if (IsMember.rows.length === 0) {
-              return res.status(403).json({
-                  message: "You are not a member of this channel"
-              });
+              return res.status(403).json({ message: "You are not a member of this channel" });
           }
 
-          // Insert message
+          const attachmentString = attachments ? JSON.stringify(attachments) : null;
+          console.log('attachmentString to save:', attachmentString);
+
           const InsertMessage = await pool.query(
-              'INSERT INTO messages (user_id, channel_id, message_type, content) VALUES ($1, $2, $3, $4) RETURNING *',
-              [user_id, channel_id, 'text', content]
+              'INSERT INTO messages (user_id, channel_id, message_type, content, attachments) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+              [user_id, channel_id, 'text', content, attachmentString]
           );
 
           const newMessage = InsertMessage.rows[0];
+          console.log('Inserted message:', newMessage);
 
-          // Get sender name
           const userResult = await pool.query(
               'SELECT name FROM users WHERE id = $1',
               [user_id]
@@ -37,7 +43,6 @@
               sender_name: userResult.rows[0].name
           };
 
-          // Broadcast via Socket.io
           const io = getIO();
           io.to(`channel-${channel_id}`).emit('message:new', messageWithSender);
 
@@ -48,12 +53,9 @@
 
       } catch (error) {
           console.error('Error sending message:', error);
-          return res.status(500).json({
-              message: error.message
-          });
+          return res.status(500).json({ message: error.message });
       }
   };
-
   const getMessages = async (req, res) => {
       const channel_id = req.params.id;
       const user_id = req.user.id;

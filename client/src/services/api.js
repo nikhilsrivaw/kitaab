@@ -10,6 +10,17 @@ const api = axios.create({
     }
 
 });
+export const uploadAPI = {
+      uploadFile: (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          return api.post('/upload', formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          });
+      }
+  };
 
 // Add token to requests automatically 
 api.interceptors.request.use((config) => {
